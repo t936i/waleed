@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة مطعم عصري</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+            font-size: 36px;
+        }
+        .menu-button {
+            margin: 10px;
+            padding: 15px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 30px;
+            background-color: #28a745;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .menu-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        .menu-section {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 800px;
+        }
+        h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        h3 {
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 15px;
+            background-color: #f8f9fa;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        li:hover {
+            background-color: #e2e6ea;
+        }
+        .add-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-button:hover {
+            background-color: #0056b3;
+        }
+        .price {
+            font-weight: bold;
+            color: #28a745;
+            margin-left: 10px;
+        }
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: block; /* إظهار السلة بشكل دائم */
+            transition: all 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        .cart h2 {
+            margin: 0 0 10px;
+            color: #007bff;
+            font-size: 20px;
+        }
+        .cart ul {
+            list-style-type: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .cart li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #007bff;
+        }
+        .remove-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+        .confirm-button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .confirm-button:hover {
+            background-color: #218838;
+        }
+        .invoice {
+            margin-top: 20px;
+            display: none;
+            font-weight: bold;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+        .wait-time {
+            margin-top: 10px;
+            color: #dc3545;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .menu-button {
+                font-size: 16px;
+            }
+            .add-button {
+                padding: 5px 10px;
+            }
+        }
+    </style>
+    <script>
+        let cart = [];
+        let prices = {
+            "حمص بالطحينة": 10,
+            "متبل باذنجان": 15,
+            "ورق عنب": 12,
+            "كبسة دجاج": 25,
+            "مشاوي مشكلة": 30,
+            "سمك مشوي": 28,
+            "سلطة فتوش": 10,
+            "سلطة تبولة": 10,
+            "سلطة خضار": 8,
+            "كولا": 5,
+            "سبرايت": 5,
+            "فانتا": 5,
+            "عصير برتقال": 6,
+            "عصير رمان": 6,
+            "عصير ليمون بالنعناع": 7,
+            "كنافة": 15,
+            "بقلاوة": 12,
+            "مهلبية": 10,
+            "تشيز كيك": 18,
+            "كعكة الشوكولاتة": 20,
+            "آيس كريم": 8,
+            "قهوة عربية": 7,
+            "قهوة تركية": 8,
+            "اسبريسو": 9
+        };
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.menu-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function addToCart(item) {
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.name === item);
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += 1; // زيادة الكمية بمقدار 1
+            } else {
+                cart.push({ name: item, quantity: 1 }); // إضافة العنصر مرة واحدة
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartContainer = document.getElementById('cart-items');
+            cartContainer.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = prices[item.name] * item.quantity;
+                total += itemTotal;
+                const li = document.createElement('li');
+                li.innerHTML = `${item.name} - ${item.quantity} <button class="remove-button" onclick="removeFromCart('${item.name}')">حذف</button>`;
+                cartContainer.appendChild(li);
+            });
+
+            const tax = total * 0.15;
+            const finalTotal = total + tax;
+            document.getElementById('total').innerText = `السعر الإجمالي: ${finalTotal.toFixed(2)} ريال (مع الضريبة)`;
+
+            // إظهار سلة الطلبات عند إضافة عناصر
+            const cartDiv = document.querySelector('.cart');
+            cartDiv.style.display = 'block'; // تأكد من أن السلة تظهر دائمًا
+        }
+
+        function removeFromCart(item) {
+            cart = cart.filter(cartItem => cartItem.name !== item);
+            updateCart();
+        }
+
+        function confirmOrder() {
+            if (cart.length === 0) {
+                alert("يرجى إضافة عناصر إلى السلة قبل تأكيد الطلب.");
+                return;
+            }
+            const invoiceNumber = Math.floor(Math.random() * 100000); // توليد رقم فاتورة عشوائي
+            const invoiceDiv = document.getElementById('invoice');
+            invoiceDiv.innerHTML = `<h3>تم تأكيد الطلب</h3><h3>رقم الفاتورة: ${invoiceNumber}</h3><ul>${cart.map(item => `<li>${item.name} - ${item.quantity}</li>`).join('')}</ul><div class="wait-time">وقت التجهيز: 10 دقائق</div>`;
+            invoiceDiv.style.display = 'block';
+            cart = []; // إفراغ السلة بعد تأكيد الطلب
+            updateCart();
+        }
+
+        // إظهار قسم الأكلات بشكل افتراضي
+        showSection('meals');
+    </script>
+</head>
+<body>
+    <h1>قائمة مطعم [اسم المطعم]</h1>
+    
+    <div style="text-align: center;">
+        <button class="menu-button" onclick="showSection('meals')">الأكلات</button>
+        <button class="menu-button" onclick="showSection('drinks')">المشروبات</button>
+        <button class="menu-button" onclick="showSection('desserts')">الحلويات</button>
+        <button class="menu-button" onclick="showSection('coffee')">القهوة</button>
+    </div>
+
+    <div id="meals" class="menu-section">
+        <h2>الأكلات</h2>
+        <h3>المقبلات:</h3>
+        <ul>
+            <li>حمص بالطحينة 
+                <span class="price">10 ريال</span>
+                <button class="add-button" onclick="addToCart('حمص بالطحينة')">إضافة</button>
+            </li>
+            <li>متبل باذنجان 
+                <span class="price">15 ريال</span>
+                <button class="add-button" onclick="addToCart('متبل باذنجان')">إضافة</button>
+            </li>
+            <li>ورق عنب 
+                <span class="price">12 ريال</span>
+                <button class="add-button" onclick="addToCart('ورق عنب')">إضافة</button>
+            </li>
+        </ul>
+        <h3>الأطباق الرئيسية:</h3>
+        <ul>
+            <li>كبسة دجاج 
+                <span class="price">25 ريال</span>
+                <button class="add-button" onclick="addToCart('كبسة دجاج')">إضافة</button>
+            </li>
+            <li>مشاوي مشكلة 
+                <span class="price">30 ريال</span>
+                <button class="add-button" onclick="addToCart('مشاوي مشكلة')">إضافة</button>
+            </li>
+            <li>سمك مشوي 
+                <span class="price">28 ريال</span>
+                <button class="add-button" onclick="addToCart('سمك مشوي')">إضافة</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="drinks" class="menu-section">
+        <h2>المشروبات</h2>
+        <h3>المشروبات الغازية:</h3>
+        <ul>
+            <li>كولا 
+                <span class="price">5 ريال</span>
+                <button class="add-button" onclick="addToCart('كولا')">إضافة</button>
+            </li>
+            <li>سبرايت 
+                <span class="price">5 ريال</span>
+                <button class="add-button" onclick="addToCart('سبرايت')">إضافة</button>
+            </li>
+            <li>فانتا 
+                <span class="price">5 ريال</span>
+                <button class="add-button" onclick="addToCart('فانتا')">إضافة</button>
+            </li>
+        </ul>
+        <h3>عصائر طبيعية:</h3>
+        <ul>
+            <li>عصير برتقال 
+                <span class="price">6 ريال</span>
+                <button class="add-button" onclick="addToCart('عصير برتقال')">إضافة</button>
+            </li>
+            <li>عصير رمان 
+                <span class="price">6 ريال</span>
+                <button class="add-button" onclick="addToCart('عصير رمان')">إضافة</button>
+            </li>
+            <li>عصير ليمون بالنعناع 
+                <span class="price">7 ريال</span>
+                <button class="add-button" onclick="addToCart('عصير ليمون بالنعناع')">إضافة</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="desserts" class="menu-section">
+        <h2>الحلويات</h2>
+        <h3>الحلويات الشرقية:</h3>
+        <ul>
+            <li>كنافة 
+                <span class="price">15 ريال</span>
+                <button class="add-button" onclick="addToCart('كنافة')">إضافة</button>
+            </li>
+            <li>بقلاوة 
+                <span class="price">12 ريال</span>
+                <button class="add-button" onclick="addToCart('بقلاوة')">إضافة</button>
+            </li>
+            <li>مهلبية 
+                <span class="price">10 ريال</span>
+                <button class="add-button" onclick="addToCart('مهلبية')">إضافة</button>
+            </li>
+        </ul>
+        <h3>الحلويات الغربية:</h3>
+        <ul>
+            <li>تشيز كيك 
+                <span class="price">18 ريال</span>
+                <button class="add-button" onclick="addToCart('تشيز كيك')">إضافة</button>
+            </li>
+            <li>كعكة الشوكولاتة 
+                <span class="price">20 ريال</span>
+                <button class="add-button" onclick="addToCart('كعكة الشوكولاتة')">إضافة</button>
+            </li>
+            <li>آيس كريم 
+                <span class="price">8 ريال</span>
+                <button class="add-button" onclick="addToCart('آيس كريم')">إضافة</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="coffee" class="menu-section">
+        <h2>القهوة</h2>
+        <ul>
+            <li>قهوة عربية 
+                <span class="price">7 ريال</span>
+                <button class="add-button" onclick="addToCart('قهوة عربية')">إضافة</button>
+            </li>
+            <li>قهوة تركية 
+                <span class="price">8 ريال</span>
+                <button class="add-button" onclick="addToCart('قهوة تركية')">إضافة</button>
+            </li>
+            <li>اسبريسو 
+                <span class="price">9 ريال</span>
+                <button class="add-button" onclick="addToCart('اسبريسو')">إضافة</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="cart">
+        <h2>سلة الطلبات</h2>
+        <ul id="cart-items">
+            <!-- سيتم عرض العناصر هنا -->
+        </ul>
+        <div class="total" id="total">السعر الإجمالي: 0.00 ريال (مع الضريبة)</div>
+        <button class="confirm-button" onclick="confirmOrder()">تأكيد الطلب</button>
+        <div class="invoice" id="invoice"></div>
+    </div>
+
+    <script>
+        // إظهار قسم الأكلات بشكل افتراضي
+        showSection('meals');
+    </script>
+</body>
+</html>
